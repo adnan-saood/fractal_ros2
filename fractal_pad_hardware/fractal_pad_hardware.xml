@@ -1,0 +1,9 @@
+<library path="fractal_pad_hardware">
+  <class name="fractal_pad_hardware/FractalPadHW"
+         type="fractal_pad_hardware::FractalPadHW"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control hardware interface.
+    </description>
+  </class>
+</library>
