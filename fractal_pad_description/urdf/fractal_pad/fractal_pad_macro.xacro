@@ -78,16 +78,51 @@
       </collision>
     </link>
 
-    <link name="${prefix}pad_link">
+    <link name="${prefix}fractal_L5325">
       <xacro:default_inertial/>
       <visual>
-        <origin xyz="0.065 0 0.08"/>
-        <geometry><box size="0.10 0.10 0.02"/></geometry>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L5325-Omega.stl" />
+        </geometry>
         <material name="red"/>
       </visual>
-      <collision><origin xyz="0.065 0 0.08"/><geometry><box size="0.10 0.10 0.02"/></geometry></collision>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_L5325-Omega.stl" />
+        </geometry>
+      </collision>
     </link>
-    <link name="${prefix}tool0"/>
+
+    <link name="${prefix}fractal_fingertip_holder">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_fingertip_holder.stl" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_fingertip_holder.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}fractal_S1813">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_S1813-Elite.stl" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_S1813-Elite.stl" />
+        </geometry>
+      </collision>
+    </link>
+
 
     <joint name="${prefix}base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
@@ -95,25 +130,24 @@
       <child link="${prefix}fractal_coupler"/>
     </joint>
     <!-- this here is the moving joint named orignially motor_joint -->
-    <joint name="${prefix}motor_joint" type="fixed">
+    <joint name="${prefix}L1_joint" type="fixed">
       <origin xyz="-0.0354 0 -0.032" rpy="0 0 ${pi/2}"/>
       <parent link="${prefix}fractal_coupler"/>
       <child link="${prefix}fractal_L1"/>
     </joint>
-    <joint name="${prefix}motor_body_joint" type="fixed">
+    <joint name="${prefix}L1_motor_body_joint" type="fixed">
       <origin xyz="0 -0.025 0" rpy="0 0 ${pi/2}"/>
       <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}motor_body"/>
     </joint>
-    <joint name="${prefix}fractal_L1-fractal_L2_joint" type="revolute">
+    <joint name="${prefix}L1_L2_joint" type="revolute">
       <parent link="${prefix}motor_body"/>
       <child link="${prefix}fractal_L2"/>
       <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
-
     </joint>
-      <joint name="${prefix}fractal_L2-fractal_L4_joint" type="revolute">
+      <joint name="${prefix}L2_L4_joint" type="revolute">
       <parent link="${prefix}fractal_L2"/>
       <child link="${prefix}fractal_L4"/>
       <origin xyz="0.0095 0 0.008" rpy="0 0 0"/>
@@ -121,16 +155,25 @@
       <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
     </joint>
 
-    <joint name="${prefix}motor-pad_joint" type="fixed">
+    <joint name="${prefix}L1_L5325_joint" type="fixed">
+      <origin xyz="0.0051 -0.0637 -0.0362" rpy="0 ${pi} 0"/>
       <parent link="${prefix}fractal_L1"/>
-      <child link="${prefix}pad_link"/>
+      <child link="${prefix}fractal_L5325"/>
     </joint>
 
-    
-    <joint name="${prefix}pad-tool0_joint" type="fixed">
-      <origin xyz="0.115 0 0.08"/>
-      <parent link="${prefix}fractal_L1"/>
-      <child link="${prefix}tool0"/>
+    <joint name="${prefix}L4_fingertip_holder_joint" type="fixed">
+      <origin xyz="0.0026 -0.0315 0.002" rpy="1 ${pi/2} 0 "/>
+      <parent link="${prefix}fractal_L4"/>
+      <child link="${prefix}fractal_fingertip_holder"/>
     </joint>
+
+    <joint name="${prefix}fingertip_holder_S1813_joint" type="fixed">
+      <origin xyz="0.0 0.009 0.0105" rpy="-0.22 0 ${pi}"/>
+      <parent link="${prefix}fractal_fingertip_holder"/>
+      <child link="${prefix}fractal_S1813"/>
+    </joint>
+
+
+
   </xacro:macro>
 </robot>
