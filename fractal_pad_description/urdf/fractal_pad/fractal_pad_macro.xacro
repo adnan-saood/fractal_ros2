@@ -5,23 +5,79 @@
 
   <xacro:macro name="fractal_pad" params="prefix parent *origin">
     <!-- Approximate geometry only; replace with measured CAD when available. -->
-    <link name="${prefix}base_link">
+    <link name="${prefix}fractal_coupler">
+      <xacro:default_inertial />
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_coupler.stl" />
+        </geometry>
+        <material name="grey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_coupler.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <link name="${prefix}fractal_L1">
       <xacro:default_inertial/>
       <visual>
-        <geometry><cylinder length="0.04" radius="0.05"/></geometry>
-        <material name="black"/>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L1.stl" />
+        </geometry>
+        <material name="red"/>
       </visual>
-      <collision><geometry><cylinder length="0.04" radius="0.05"/></geometry></collision>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_L1.stl" />
+        </geometry>
+      </collision>
     </link>
-    <link name="${prefix}motor_link">
+    <link name="${prefix}motor_body">
       <xacro:default_inertial/>
       <visual>
-        <origin xyz="0 0 0.04"/>
-        <geometry><cylinder length="0.08" radius="0.035"/></geometry>
-        <material name="blue"/>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_GM2804.stl" />
+        </geometry>
+        <material name="grey"/>
       </visual>
-      <collision><origin xyz="0 0 0.04"/><geometry><cylinder length="0.08" radius="0.035"/></geometry></collision>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_GM2804.stl" />
+        </geometry>
+      </collision>
     </link>
+
+    <link name="${prefix}fractal_L2">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L2.stl" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_L2.stl" />
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}fractal_L4">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L4.stl" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_L4.stl" />
+        </geometry>
+      </collision>
+    </link>
+
     <link name="${prefix}pad_link">
       <xacro:default_inertial/>
       <visual>
@@ -36,22 +92,44 @@
     <joint name="${prefix}base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
       <parent link="${parent}"/>
-      <child link="${prefix}base_link"/>
+      <child link="${prefix}fractal_coupler"/>
     </joint>
-    <joint name="${prefix}motor_joint" type="continuous">
-      <origin xyz="0 0 0.02"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}motor_link"/>
+    <!-- this here is the moving joint named orignially motor_joint -->
+    <joint name="${prefix}motor_joint" type="fixed">
+      <origin xyz="-0.0354 0 -0.032" rpy="0 0 ${pi/2}"/>
+      <parent link="${prefix}fractal_coupler"/>
+      <child link="${prefix}fractal_L1"/>
+    </joint>
+    <joint name="${prefix}motor_body_joint" type="fixed">
+      <origin xyz="0 -0.025 0" rpy="0 0 ${pi/2}"/>
+      <parent link="${prefix}fractal_L1"/>
+      <child link="${prefix}motor_body"/>
+    </joint>
+    <joint name="${prefix}fractal_L1-fractal_L2_joint" type="revolute">
+      <parent link="${prefix}motor_body"/>
+      <child link="${prefix}fractal_L2"/>
+      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
       <axis xyz="0 0 1"/>
-      <limit effort="0" velocity="50"/>
+      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+
     </joint>
+      <joint name="${prefix}fractal_L2-fractal_L4_joint" type="revolute">
+      <parent link="${prefix}fractal_L2"/>
+      <child link="${prefix}fractal_L4"/>
+      <origin xyz="0.0095 0 0.008" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+    </joint>
+
     <joint name="${prefix}motor-pad_joint" type="fixed">
-      <parent link="${prefix}motor_link"/>
+      <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}pad_link"/>
     </joint>
+
+    
     <joint name="${prefix}pad-tool0_joint" type="fixed">
       <origin xyz="0.115 0 0.08"/>
-      <parent link="${prefix}motor_link"/>
+      <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}tool0"/>
     </joint>
   </xacro:macro>
