@@ -44,7 +44,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Alpha: 0.5
+    - Alpha: 0.800000011920929
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
       Description File: ""
@@ -68,6 +68,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         fractal_L2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fractal_L3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -174,25 +179,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.05278350040316582
+      Distance: 0.09578453749418259
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.028169067576527596
-        Y: 0.02334301359951496
-        Z: -0.020291201770305634
+        X: 0.015926849097013474
+        Y: 0.01171487383544445
+        Z: -0.054410722106695175
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.12979716062545776
+      Pitch: -0.2152026742696762
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 0.1855531632900238
+      Yaw: 4.593739986419678
     Saved: ~
 Window Geometry:
   Displays:

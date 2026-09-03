@@ -78,6 +78,21 @@
       </collision>
     </link>
 
+    <link name="${prefix}fractal_L3">
+      <xacro:default_inertial/>
+      <visual>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L3.stl" />
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://fractal_pad_description/meshes/fractal_pad/collision/fractal_L3.stl" />
+        </geometry>
+      </collision>
+    </link>
+
     <link name="${prefix}fractal_L5325">
       <xacro:default_inertial/>
       <visual>
@@ -124,6 +139,8 @@
     </link>
 
 
+
+
     <joint name="${prefix}base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
       <parent link="${parent}"/>
@@ -154,6 +171,15 @@
       <axis xyz="0 0 1"/>
       <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
     </joint>
+
+    <joint name="${prefix}L1_L3_joint" type="continuous">
+      <parent link="${prefix}fractal_L1"/>
+      <child link="${prefix}fractal_L3"/>
+      <origin xyz="0 -0.039 -0.022" rpy="${-pi/2} ${-pi/2} 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+    </joint>
+    
 
     <joint name="${prefix}L1_L5325_joint" type="fixed">
       <origin xyz="0.0051 -0.0637 -0.0362" rpy="0 ${pi} 0"/>
