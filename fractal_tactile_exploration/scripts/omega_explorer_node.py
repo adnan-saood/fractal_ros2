@@ -3,10 +3,15 @@
 import math
 import numpy as np
 import rclpy
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from franka_msgs.msg import FrankaState
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped
+from moveit_msgs.action import MoveGroup
+from moveit_msgs.msg import (BoundingVolume, Constraints, MoveItErrorCodes,
+                             OrientationConstraint, PositionConstraint)
 from paxini_hardware.msg import TactileSensor
+from shape_msgs.msg import SolidPrimitive
 from fractal_tactile_exploration.msg import FractalMapSample
 
 
@@ -69,6 +74,19 @@ class OmegaExplorer(Node):
         self.hard_limit = self.declare_parameter('safety.hard_force_limit', 5.0).value
         self.force_weight = self.declare_parameter('fusion.franka_force_weight', 1.0).value
         self.taxel_weight = self.declare_parameter('fusion.omega_taxel_weight', 1.0).value
+        self.mock_square_enabled = self.declare_parameter('motion_test.enabled', False).value
+        self.mock_square_frame = self.declare_parameter('motion_test.frame_id', 'world').value
+        self.mock_square_xy = self.declare_parameter(
+            'motion_test.square_xy', [0.30, -0.05, 0.40, -0.05, 0.40, 0.05, 0.30, 0.05]).value
+        self.mock_square_z = self.declare_parameter('motion_test.z', 0.50).value
+        self.mock_square_orientation = self.declare_parameter(
+            'motion_test.orientation_xyzw', [0.0, 1.0, 0.0, 0.0]).value
+        self.mock_square_position_tolerance = self.declare_parameter(
+            'motion_test.position_tolerance', 0.005).value
+        self.mock_square_orientation_tolerance = self.declare_parameter(
+            'motion_test.orientation_tolerance', 0.05).value
+        self.mock_square_start_delay = self.declare_parameter(
+            'motion_test.start_delay', 2.0).value
         self.force, self.position = 0.0, None
         self.action = OmegaPressAction()
         self.targets = self.create_publisher(PoseStamped, '~/next_omega_target', 10)
@@ -76,6 +94,100 @@ class OmegaExplorer(Node):
         self.samples = self.create_publisher(FractalMapSample, '~/map_sample', 10)
         self.create_subscription(FrankaState, '/franka_robot_state_broadcaster/robot_state', self.on_franka, 10)
         self.create_subscription(TactileSensor, '/paxini/L5325_omega/tactile_sensor', self.on_omega, 10)
+        self.move_group_client = ActionClient(self, MoveGroup, '/move_action')
+        self.square_waypoint_index = 0
+        self.square_timer = None
+        if self.mock_square_enabled:
+            self.validate_mock_square_parameters()
+            self.square_timer = self.create_timer(
+                self.mock_square_start_delay, self.start_mock_square_test)
+
+    def validate_mock_square_parameters(self):
+        if len(self.mock_square_xy) < 8 or len(self.mock_square_xy) % 2:
+            raise ValueError('motion_test.square_xy must contain at least four XY coordinate pairs.')
+        if len(self.mock_square_orientation) != 4:
+            raise ValueError('motion_test.orientation_xyzw must contain four values.')
+
+    def start_mock_square_test(self):
+        if not self.move_group_client.server_is_ready():
+            self.get_logger().info('Waiting for MoveIt /move_action before starting square test.')
+            return
+        self.square_timer.cancel()
+        self.get_logger().info(
+            f'Starting mock XY square test with {len(self.mock_square_xy) // 2} waypoints.')
+        self.send_next_square_waypoint()
+
+    def send_next_square_waypoint(self):
+        if self.square_waypoint_index >= len(self.mock_square_xy) // 2:
+            self.get_logger().info('Mock XY square test completed.')
+            return
+
+        point_index = 2 * self.square_waypoint_index
+        x, y = self.mock_square_xy[point_index:point_index + 2]
+        goal = MoveGroup.Goal()
+        request = goal.request
+        request.group_name = 'panda_arm'
+        request.num_planning_attempts = 5
+        request.allowed_planning_time = 5.0
+        request.max_velocity_scaling_factor = 0.1
+        request.max_acceleration_scaling_factor = 0.1
+        request.goal_constraints = [self.make_tool_pose_constraint(x, y)]
+        request.start_state.is_diff = True
+        goal.planning_options.plan_only = False
+
+        self.get_logger().info(
+            f'Planning square waypoint {self.square_waypoint_index + 1}: '
+            f'x={x:.3f}, y={y:.3f}, z={self.mock_square_z:.3f}.')
+        self.move_group_client.send_goal_async(goal).add_done_callback(self.on_square_goal_response)
+
+    def make_tool_pose_constraint(self, x, y):
+        target_pose = Pose()
+        target_pose.position.x = x
+        target_pose.position.y = y
+        target_pose.position.z = self.mock_square_z
+        (target_pose.orientation.x, target_pose.orientation.y,
+         target_pose.orientation.z, target_pose.orientation.w) = self.mock_square_orientation
+
+        position_constraint = PositionConstraint()
+        position_constraint.header.frame_id = self.mock_square_frame
+        position_constraint.link_name = 'omega_contact_tip'
+        sphere = SolidPrimitive()
+        sphere.type = SolidPrimitive.SPHERE
+        sphere.dimensions = [self.mock_square_position_tolerance]
+        position_constraint.constraint_region = BoundingVolume(
+            primitives=[sphere], primitive_poses=[target_pose])
+        position_constraint.weight = 1.0
+
+        orientation_constraint = OrientationConstraint()
+        orientation_constraint.header.frame_id = self.mock_square_frame
+        orientation_constraint.link_name = 'omega_contact_tip'
+        orientation_constraint.orientation = target_pose.orientation
+        orientation_constraint.absolute_x_axis_tolerance = self.mock_square_orientation_tolerance
+        orientation_constraint.absolute_y_axis_tolerance = self.mock_square_orientation_tolerance
+        orientation_constraint.absolute_z_axis_tolerance = self.mock_square_orientation_tolerance
+        orientation_constraint.weight = 1.0
+
+        constraint = Constraints()
+        constraint.position_constraints = [position_constraint]
+        constraint.orientation_constraints = [orientation_constraint]
+        return constraint
+
+    def on_square_goal_response(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().error('MoveIt rejected the mock square waypoint goal.')
+            return
+        goal_handle.get_result_async().add_done_callback(self.on_square_goal_result)
+
+    def on_square_goal_result(self, future):
+        result = future.result().result
+        if result.error_code.val != MoveItErrorCodes.SUCCESS:
+            self.get_logger().error(
+                f'Mock square waypoint {self.square_waypoint_index + 1} failed with '
+                f'MoveIt error code {result.error_code.val}.')
+            return
+        self.square_waypoint_index += 1
+        self.send_next_square_waypoint()
 
     def on_franka(self, state):
         self.force = float(np.linalg.norm(state.k_f_ext_hat_k[:3]))

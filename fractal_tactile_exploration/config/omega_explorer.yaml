@@ -29,3 +29,14 @@ omega_explorer_node:
     safety.retract_distance: 0.03
     safety.max_abs_roll: 0.15
     safety.max_abs_pitch: 0.15
+
+    # Disabled by default. Executes these world-frame Omega-tip waypoints through
+    # MoveIt and the mock Panda trajectory controller when enabled.
+    motion_test.enabled: false
+    motion_test.frame_id: world
+    motion_test.square_xy: [0.30, -0.05, 0.40, -0.05, 0.40, 0.05, 0.30, 0.05]
+    motion_test.z: 0.0
+    motion_test.orientation_xyzw: [0.0, 1.0, 0.0, 0.0]
+    motion_test.position_tolerance: 0.005
+    motion_test.orientation_tolerance: 0.05
+    motion_test.start_delay: 2.0
