@@ -11,6 +11,8 @@
 
   <exec_depend>fractal_pad_description</exec_depend>
   <exec_depend>fractal_pad_hardware</exec_depend>
+  <exec_depend>paxini_raw_controller</exec_depend>
+  <exec_depend>paxini_raw_hardware</exec_depend>
 
   <exec_depend>controller_manager</exec_depend>
 
@@ -21,6 +23,7 @@
   <exec_depend>joint_state_publisher_gui</exec_depend>
 
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
 
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
