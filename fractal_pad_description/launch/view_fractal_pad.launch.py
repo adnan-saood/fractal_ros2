@@ -22,6 +22,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -136,9 +137,9 @@ def generate_launch_description():
             {
                 "input_joint_states_topic": "/four_bar/input_joint_states",
                 "output_joint_states_topic": "/joint_states",
-                "motor_joint_name": [prefix, "L1_L2_joint"],
-                "l3_joint_name": [prefix, "L1_L3_joint"],
-                "l4_joint_name": [prefix, "L2_L4_joint"],
+                "motor_joint_name": ParameterValue([prefix, "L1_L2_joint"], value_type=str),
+                "l3_joint_name": ParameterValue([prefix, "L1_L3_joint"], value_type=str),
+                "l4_joint_name": ParameterValue([prefix, "L2_L4_joint"], value_type=str),
                 "r1": 0.022,
                 "r2": 0.0095,
                 "r3": 0.0201,

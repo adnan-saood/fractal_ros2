@@ -10,16 +10,21 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    serial_port = LaunchConfiguration("serial_port")
+    serial_device = LaunchConfiguration("serial_device")
+    sensor_serial_port = LaunchConfiguration("sensor_serial_port")
     baud_rate = LaunchConfiguration("baud_rate")
     publish_rate_hz = LaunchConfiguration("publish_rate_hz")
 
-    pad_view = IncludeLaunchDescription(
+    pad_hardware = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [FindPackageShare("fractal_pad_description"), "launch", "view_fractal_pad.launch.py"]
+                [FindPackageShare("fractal_pad_bringup"), "launch", "fractal_pad.launch.py"]
             )
-        )
+        ),
+        launch_arguments={
+            "serial_device": serial_device,
+            "use_joint_state_publisher_gui": "false",
+        }.items(),
     )
 
     raw_hardware = Node(
@@ -29,7 +34,7 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
-                "serial_port": serial_port,
+                "serial_port": sensor_serial_port,
                 "baud_rate": baud_rate,
                 "publish_rate_hz": publish_rate_hz,
             }
@@ -57,10 +62,11 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            DeclareLaunchArgument("serial_port", default_value="/dev/ttyACM0"),
+            DeclareLaunchArgument("serial_device", default_value="/dev/ttyUSB0"),
+            DeclareLaunchArgument("sensor_serial_port", default_value="/dev/ttyACM0"),
             DeclareLaunchArgument("baud_rate", default_value="921600"),
             DeclareLaunchArgument("publish_rate_hz", default_value="50.0"),
-            pad_view,
+            pad_hardware,
             raw_hardware,
             raw_controller,
             l5325_frame,

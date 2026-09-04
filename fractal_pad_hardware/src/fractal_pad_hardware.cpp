@@ -241,20 +241,28 @@ void FractalPadHW::read_telemetry()
 
 bool FractalPadHW::parse_telemetry_frame(const std::string & frame)
 {
-  // Firmware ROS_MODE telemetry: <target,velocity,shaft_angle,current_q,voltage_q>.
+  // SimpleFOC monitor() emits enabled fields in its fixed implementation order:
+  // <target,voltage_q,current_q_mA,velocity,shaft_angle>.
   std::istringstream stream(frame);
   std::string value;
-  double fields[5]{};
-  for (double & field : fields)
+  double target = 0.0;
+  double voltage_q = 0.0;
+  double current_q_milliamps = 0.0;
+  double velocity = 0.0;
+  double shaft_angle = 0.0;
+  double * const fields[]{
+    &target, &voltage_q, &current_q_milliamps, &velocity, &shaft_angle};
+  for (const auto field : fields)
   {
     if (!std::getline(stream, value, ',')) { return false; }
-    try { field = std::stod(value); } catch (const std::exception &) { return false; }
+    try { *field = std::stod(value); } catch (const std::exception &) { return false; }
   }
-  hw_targets_[0] = fields[0];
-  hw_velocities_[0] = fields[1];
-  hw_states_[0] = fields[2];
-  hw_currents_q_[0] = fields[3];
-  hw_voltages_q_[0] = fields[4];
+
+  hw_targets_[0] = target;
+  hw_velocities_[0] = velocity;
+  hw_states_[0] = shaft_angle;
+  hw_currents_q_[0] = current_q_milliamps / 1000.0;
+  hw_voltages_q_[0] = voltage_q;
   return true;
 }
 

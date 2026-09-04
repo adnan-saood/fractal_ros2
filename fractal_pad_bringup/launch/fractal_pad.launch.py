@@ -25,6 +25,7 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -64,7 +65,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "prefix",
-            default_value='""',
+            default_value="",
             description="Prefix of the joint names, useful for \
         multi-robot setup. If changed than also joint names in the controllers' configuration \
         have to be updated.",
@@ -188,7 +189,25 @@ def generate_launch_description():
         package="fractal_pad_controller",
         executable="four_bar_joint_state_publisher",
         output="both",
-        # parameters may be overridden by user; defaults are in the node
+        parameters=[
+            {
+                "input_joint_states_topic": "/joint_states",
+                "output_joint_states_topic": "/joint_states",
+                "input_motor_joint_name": ParameterValue([prefix, "motor_joint"], value_type=str),
+                "motor_joint_name": ParameterValue([prefix, "L1_L2_joint"], value_type=str),
+                "l3_joint_name": ParameterValue([prefix, "L1_L3_joint"], value_type=str),
+                "l4_joint_name": ParameterValue([prefix, "L2_L4_joint"], value_type=str),
+                "r1": 0.022,
+                "r2": 0.0095,
+                "r3": 0.0201,
+                "r4": 0.02236,
+                "input_angle_offset": 3.141592653589793,
+                "motor_joint_direction": 1.0,
+                "l3_joint_direction": 1.0,
+                "l4_joint_direction": 1.0,
+                "solution_sign": -1,
+            }
+        ],
     )
 
     joint_state_broadcaster_spawner = Node(

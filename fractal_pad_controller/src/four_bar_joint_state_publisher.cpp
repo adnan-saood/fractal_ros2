@@ -24,6 +24,7 @@ public:
     this->declare_parameter<string>("input_joint_states_topic", "/four_bar/input_joint_states");
     this->declare_parameter<string>("output_joint_states_topic", "/joint_states");
     this->declare_parameter<string>("motor_joint_name", "L1_L2_joint");
+    this->declare_parameter<string>("input_motor_joint_name", "L1_L2_joint");
     this->declare_parameter<string>("l3_joint_name", "L1_L3_joint");
     this->declare_parameter<string>("l4_joint_name", "L2_L4_joint");
     this->declare_parameter<double>("r1", 0.08);  // L1: motor pivot to L3 pivot
@@ -39,6 +40,7 @@ public:
     input_joint_states_topic_ = this->get_parameter("input_joint_states_topic").as_string();
     output_joint_states_topic_ = this->get_parameter("output_joint_states_topic").as_string();
     motor_joint_name_ = this->get_parameter("motor_joint_name").as_string();
+    input_motor_joint_name_ = this->get_parameter("input_motor_joint_name").as_string();
     l3_joint_name_ = this->get_parameter("l3_joint_name").as_string();
     l4_joint_name_ = this->get_parameter("l4_joint_name").as_string();
     r1_ = this->get_parameter("r1").as_double();
@@ -66,9 +68,10 @@ public:
 
     RCLCPP_INFO(
       this->get_logger(),
-      "four_bar_joint_state_publisher started (%s -> %s; motor: %s, l3: %s, l4: %s)",
+      "four_bar_joint_state_publisher started (%s -> %s; input motor: %s, model motor: %s, l3: %s, l4: %s)",
       input_joint_states_topic_.c_str(), output_joint_states_topic_.c_str(),
-      motor_joint_name_.c_str(), l3_joint_name_.c_str(), l4_joint_name_.c_str());
+      input_motor_joint_name_.c_str(), motor_joint_name_.c_str(), l3_joint_name_.c_str(),
+      l4_joint_name_.c_str());
   }
 
 private:
@@ -106,7 +109,7 @@ private:
     double motor_command = NAN;
     for (size_t i = 0; i < msg->name.size(); ++i)
     {
-      if (msg->name[i] == motor_joint_name_ && i < msg->position.size())
+      if (msg->name[i] == input_motor_joint_name_ && i < msg->position.size())
       {
         motor_command = msg->position[i];
         break;
@@ -126,6 +129,17 @@ private:
     // Merge computed passive joints into a copy of the incoming joint state
     sensor_msgs::msg::JointState out = *msg;
     out.header.stamp = this->now();
+
+    // Do not republish the raw hardware joint. This makes /joint_states safe as
+    // both the input and output topic: the solver ignores its own messages.
+    for (size_t i = out.name.size(); i-- > 0;) {
+      if (out.name[i] == input_motor_joint_name_) {
+        out.name.erase(out.name.begin() + static_cast<std::ptrdiff_t>(i));
+        if (i < out.position.size()) out.position.erase(out.position.begin() + static_cast<std::ptrdiff_t>(i));
+        if (i < out.velocity.size()) out.velocity.erase(out.velocity.begin() + static_cast<std::ptrdiff_t>(i));
+        if (i < out.effort.size()) out.effort.erase(out.effort.begin() + static_cast<std::ptrdiff_t>(i));
+      }
+    }
 
     auto set_or_append = [&](const std::string & name, double value) {
       // try to find existing entry
@@ -159,6 +173,7 @@ private:
   string input_joint_states_topic_;
   string output_joint_states_topic_;
   string motor_joint_name_;
+  string input_motor_joint_name_;
   string l3_joint_name_;
   string l4_joint_name_;
   double r1_, r2_, r3_, r4_;
