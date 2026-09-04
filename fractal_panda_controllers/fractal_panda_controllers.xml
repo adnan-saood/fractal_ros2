@@ -1,0 +1,7 @@
+<library path="fractal_joint_reference_impedance_controller">
+  <class name="fractal_panda_controllers/JointReferenceImpedanceController"
+         type="fractal_panda_controllers::JointReferenceImpedanceController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>Joint impedance controller that accepts bounded planner references.</description>
+  </class>
+</library>

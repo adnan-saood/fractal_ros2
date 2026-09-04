@@ -1,0 +1,31 @@
+omega_explorer_node:
+  ros__parameters:
+    map_frame: tactile_map
+    map_translation_xyz: [0.0, 0.0, 0.0]
+    candidate_x: [-0.05, 0.0, 0.05]
+    candidate_y: [-0.05, 0.0, 0.05]
+    approach_height: 0.03
+    nominal_roll: 0.0
+    nominal_pitch: 0.0
+    nominal_yaw: 0.0
+
+    geometry.length_scale: 0.015
+    geometry.signal_stddev: 0.002
+    geometry.prior: 0.0
+    material.length_scale: 0.020
+    material.signal_stddev: 0.25
+    material.prior: 0.5
+    sensor.measurement_stddev: 0.0005
+
+    exploration_weight: 1.0
+    affordance_weight: 1.5
+    affordance.target_flatness: 0.95
+    affordance.target_firmness: 0.95
+
+    fusion.franka_force_weight: 1.0
+    fusion.omega_taxel_weight: 1.0
+    safety.contact_threshold: 1.0
+    safety.hard_force_limit: 5.0
+    safety.retract_distance: 0.03
+    safety.max_abs_roll: 0.15
+    safety.max_abs_pitch: 0.15

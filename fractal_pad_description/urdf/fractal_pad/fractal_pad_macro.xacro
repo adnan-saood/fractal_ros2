@@ -3,7 +3,7 @@
   <xacro:include filename="$(find fractal_pad_description)/urdf/common/inertials.xacro" />
   <xacro:include filename="$(find fractal_pad_description)/urdf/common/materials.xacro" />
 
-  <xacro:macro name="fractal_pad" params="prefix parent *origin">
+  <xacro:macro name="fractal_pad" params="prefix parent planning_mode:=false *origin">
     <!-- Approximate geometry only; replace with measured CAD when available. -->
     <link name="${prefix}fractal_coupler">
       <xacro:default_inertial />
@@ -155,28 +155,47 @@
       <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}motor_body"/>
     </joint>
-    <joint name="${prefix}L1_L2_joint" type="continuous">
-      <parent link="${prefix}motor_body"/>
-      <child link="${prefix}fractal_L2"/>
-      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="${pi/2}" upper="${2*pi}" effort="1" velocity="1"/>
-    </joint>
+    <xacro:if value="${planning_mode == True or planning_mode == 'true'}">
+      <!-- Fixed neutral geometry for the seven-joint Panda MoveIt group. -->
+      <joint name="${prefix}L1_L2_joint" type="fixed">
+        <parent link="${prefix}motor_body"/>
+        <child link="${prefix}fractal_L2"/>
+        <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
+      </joint>
+      <joint name="${prefix}L2_L4_joint" type="fixed">
+        <parent link="${prefix}fractal_L2"/>
+        <child link="${prefix}fractal_L4"/>
+        <origin xyz="0.0095 0 0.009" rpy="0 0 -2.257926628929"/>
+      </joint>
+      <joint name="${prefix}L1_L3_joint" type="fixed">
+        <parent link="${prefix}fractal_L1"/>
+        <child link="${prefix}fractal_L3"/>
+        <origin xyz="0 -0.043 -0.022" rpy="${pi/2} -2.355131484931 0"/>
+      </joint>
+    </xacro:if>
+    <xacro:unless value="${planning_mode == True or planning_mode == 'true'}">
+      <joint name="${prefix}L1_L2_joint" type="continuous">
+        <parent link="${prefix}motor_body"/>
+        <child link="${prefix}fractal_L2"/>
+        <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${pi/2}" upper="${2*pi}" effort="1" velocity="1"/>
+      </joint>
       <joint name="${prefix}L2_L4_joint" type="revolute">
-      <parent link="${prefix}fractal_L2"/>
-      <child link="${prefix}fractal_L4"/>
-          <origin xyz="0.0095 0 0.009" rpy="0 0 -2.257926628929"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
-    </joint>
-
-    <joint name="${prefix}L1_L3_joint" type="continuous">
-      <parent link="${prefix}fractal_L1"/>
-      <child link="${prefix}fractal_L3"/>
-          <origin xyz="0 -0.043 -0.022" rpy="${pi/2} -2.355131484931 0"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
-    </joint>
+        <parent link="${prefix}fractal_L2"/>
+        <child link="${prefix}fractal_L4"/>
+        <origin xyz="0.0095 0 0.009" rpy="0 0 -2.257926628929"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+      </joint>
+      <joint name="${prefix}L1_L3_joint" type="continuous">
+        <parent link="${prefix}fractal_L1"/>
+        <child link="${prefix}fractal_L3"/>
+        <origin xyz="0 -0.043 -0.022" rpy="${pi/2} -2.355131484931 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+      </joint>
+    </xacro:unless>
     
 
     <joint name="${prefix}L1_L5325_joint" type="fixed">

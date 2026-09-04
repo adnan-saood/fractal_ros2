@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="fractal_panda">
+
+  <!-- Use this if parameters are set from the launch file, otherwise delete -->
+
+  <xacro:include
+  filename="$(find fractal_panda_description)/urdf/fractal_panda/fractal_panda_macro.xacro" />
+  <xacro:include
+  filename="$(find fractal_panda_description)/urdf/fractal_panda/fractal_panda_macro.ros2_control.xacro" />
+
+  <xacro:include filename="$(find fractal_pad_description)/urdf/fractal_pad/fractal_pad_macro.xacro" />
+
+  <xacro:arg name="arm_id" default="panda"/> <!-- Name of this panda -->
+  <xacro:arg name="hand" default="false"/> <!-- Should a franka_gripper be mounted at the flange?" -->
+  <xacro:arg name="robot_ip" default=""/> <!-- IP address or hostname of the robot" -->
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="fake_sensor_commands" default="false"/>
+  <xacro:arg name="planning_mode" default="false"/>
+
+  <!-- Root frame shared by TF, MoveIt, and RViz. -->
+  <link name="world" />
+  <joint name="world_to_link0" type="fixed">
+    <parent link="world" />
+    <child link="panda_link0" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <xacro:if value="false">
+    <link name="world" />
+    <joint name="world_to_base" type="fixed">
+      <parent link="world" />
+      <child link="base" /> <!-- or whatever the root link of franka_robot is -->
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+  </xacro:if>
+
+
+  <xacro:include filename="$(find fractal_panda_description)/robots/panda/panda_arm.xacro" />
+  <xacro:panda_arm arm_id="$(arg arm_id)" safety_distance="0.03" />
+
+    <xacro:include filename="$(find fractal_panda_description)/robots/panda/panda_arm.ros2_control.xacro"/>
+  <xacro:panda_arm_ros2_control ns="$(arg arm_id)" robot_ip="$(arg robot_ip)" use_fake_hardware="$(arg use_fake_hardware)" fake_sensor_commands="$(arg fake_sensor_commands)"/>
+
+
+  <link name="ext_force" />
+  <joint name="ext_force_joint" type="fixed">
+    <parent link="panda_link7" />
+    <child link="ext_force" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="panda_link7">
+    <system name="ApplyLinkWrench">
+
+      <link_name>panda_link7</link_name>
+      <wrench_topic>/external_handshake_wrench</wrench_topic>
+
+    </system>
+  </gazebo>
+
+  <!-- MoveIt sets planning_mode=true to use calibrated, fixed pad geometry. -->
+  <xacro:fractal_pad prefix="" parent="panda_link8" planning_mode="$(arg planning_mode)">
+    <origin xyz="0 0 0" rpy="${-pi} 0 0"/>
+  </xacro:fractal_pad>
+
+  <link name="omega_contact_tip"/>
+
+<joint name="omega_contact_tip_joint" type="fixed">
+  <parent link="fractal_L5325"/>
+  <child link="omega_contact_tip"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+</robot>
