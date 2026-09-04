@@ -184,6 +184,13 @@ def generate_launch_description():
         condition=IfCondition(use_joint_state_publisher_gui),
     )
 
+    four_bar_state_node = Node(
+        package="fractal_pad_controller",
+        executable="four_bar_joint_state_publisher",
+        output="both",
+        # parameters may be overridden by user; defaults are in the node
+    )
+
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -280,6 +287,7 @@ def generate_launch_description():
             rviz_node,
             joint_state_publisher_gui_node,
             slider_command_bridge_node,
+            four_bar_state_node,
             delay_joint_state_broadcaster_spawner_after_ros2_control_node,
             delay_gui_robot_controller_spawner_after_ros2_control_node,
         ]

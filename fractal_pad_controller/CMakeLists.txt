@@ -70,4 +70,15 @@ ament_export_libraries(
   fractal_pad_controller
 )
 
+# four-bar joint state publisher node
+add_executable(four_bar_joint_state_publisher src/four_bar_joint_state_publisher.cpp)
+target_include_directories(four_bar_joint_state_publisher PUBLIC
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+ament_target_dependencies(four_bar_joint_state_publisher
+  rclcpp
+  sensor_msgs)
+install(TARGETS four_bar_joint_state_publisher
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
+
 ament_package()

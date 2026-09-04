@@ -25,7 +25,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L1.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="white"/>
       </visual>
       <collision>
         <geometry>
@@ -39,7 +39,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_GM2804.stl" />
         </geometry>
-        <material name="grey"/>
+        <material name="black"/>
       </visual>
       <collision>
         <geometry>
@@ -54,7 +54,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L2.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="grey"/>
       </visual>
       <collision>
         <geometry>
@@ -69,7 +69,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L4.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="grey"/>
       </visual>
       <collision>
         <geometry>
@@ -84,7 +84,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L3.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="grey"/>
       </visual>
       <collision>
         <geometry>
@@ -99,7 +99,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L5325-Omega.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="black"/>
       </visual>
       <collision>
         <geometry>
@@ -129,7 +129,7 @@
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_S1813-Elite.stl" />
         </geometry>
-        <material name="red"/>
+        <material name="black"/>
       </visual>
       <collision>
         <geometry>
@@ -137,8 +137,6 @@
         </geometry>
       </collision>
     </link>
-
-
 
 
     <joint name="${prefix}base_joint" type="fixed">
@@ -157,17 +155,17 @@
       <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}motor_body"/>
     </joint>
-    <joint name="${prefix}L1_L2_joint" type="revolute">
+    <joint name="${prefix}L1_L2_joint" type="continuous">
       <parent link="${prefix}motor_body"/>
       <child link="${prefix}fractal_L2"/>
       <origin xyz="0 0 0" rpy="0 ${-pi/2} 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
+      <limit lower="${pi/2}" upper="${2*pi}" effort="1" velocity="1"/>
     </joint>
       <joint name="${prefix}L2_L4_joint" type="revolute">
       <parent link="${prefix}fractal_L2"/>
       <child link="${prefix}fractal_L4"/>
-      <origin xyz="0.0095 0 0.008" rpy="0 0 0"/>
+          <origin xyz="0.0095 0 0.009" rpy="0 0 -2.257926628929"/>
       <axis xyz="0 0 1"/>
       <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
     </joint>
@@ -175,7 +173,7 @@
     <joint name="${prefix}L1_L3_joint" type="continuous">
       <parent link="${prefix}fractal_L1"/>
       <child link="${prefix}fractal_L3"/>
-      <origin xyz="0 -0.039 -0.022" rpy="${-pi/2} ${-pi/2} 0"/>
+          <origin xyz="0 -0.043 -0.022" rpy="${pi/2} -2.355131484931 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="0" upper="${2*pi}" effort="1" velocity="1"/>
     </joint>
@@ -198,8 +196,6 @@
       <parent link="${prefix}fractal_fingertip_holder"/>
       <child link="${prefix}fractal_S1813"/>
     </joint>
-
-
 
   </xacro:macro>
 </robot>
