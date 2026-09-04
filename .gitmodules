@@ -1,3 +1,8 @@
 [submodule "paxini_ros2"]
 	path = paxini_ros2
 	url = git@github.com:adnan-saood/paxini_ros2.git
+
+[submodule "franka_arm_ros2"]
+	path = franka_arm_ros2
+	url = git@github.com:adnan-saood/franka_arm_ros2.git
+	commit = 6867bde68970104118d04ae853ddded15bf857fb
