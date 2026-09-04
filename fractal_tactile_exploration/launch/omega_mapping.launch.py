@@ -10,6 +10,9 @@ def generate_launch_description():
         DeclareLaunchArgument("map_x", default_value="0.0"),
         DeclareLaunchArgument("map_y", default_value="0.0"),
         DeclareLaunchArgument("map_z", default_value="0.0"),
+        DeclareLaunchArgument("map_roll", default_value="0.0"),
+        DeclareLaunchArgument("map_pitch", default_value="0.0"),
+        DeclareLaunchArgument("map_yaw", default_value="0.0"),
         Node(
             package="fractal_tactile_exploration",
             executable="omega_explorer_node",
@@ -24,6 +27,11 @@ def generate_launch_description():
             package="tf2_ros",
             executable="static_transform_publisher",
             name="panda_to_tactile_map",
-            arguments=[LaunchConfiguration("map_x"), LaunchConfiguration("map_y"), LaunchConfiguration("map_z"), "0", "0", "0", "panda_link0", "tactile_map"],
+            arguments=[
+                LaunchConfiguration("map_x"), LaunchConfiguration("map_y"),
+                LaunchConfiguration("map_z"), LaunchConfiguration("map_roll"),
+                LaunchConfiguration("map_pitch"), LaunchConfiguration("map_yaw"),
+                "panda_link0", "tactile_map",
+            ],
         ),
     ])

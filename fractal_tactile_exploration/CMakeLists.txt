@@ -30,6 +30,11 @@ target_include_directories(fractal_gp_map PUBLIC
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config launch docs DESTINATION share/${PROJECT_NAME})
 install(PROGRAMS scripts/omega_explorer_node.py DESTINATION lib/${PROJECT_NAME} RENAME omega_explorer_node)
+install(FILES
+  scripts/mock_square_test.py
+  scripts/moveit_executor.py
+  scripts/omega_math.py
+  DESTINATION lib/${PROJECT_NAME})
 install(TARGETS fractal_gp_map
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

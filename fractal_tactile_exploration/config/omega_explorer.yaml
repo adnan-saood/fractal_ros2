@@ -1,42 +1,91 @@
 omega_explorer_node:
   ros__parameters:
+    # Frame for exploration targets and GP sample coordinates. The node resolves
+    # the current omega_contact_tip TF into this frame at every accepted contact.
     map_frame: tactile_map
+    # Reserved calibration translation [m] from panda_link0 to map_frame.
+    # The current node does not consume this; configure the static TF launch.
     map_translation_xyz: [0.0, 0.0, 0.0]
-    candidate_x: [-0.05, 0.0, 0.05]
-    candidate_y: [-0.05, 0.0, 0.05]
-    approach_height: 0.03
-    nominal_roll: 0.0
-    nominal_pitch: 0.0
-    nominal_yaw: 0.0
 
+    # Positive clearance [m] above the GP-predicted surface height.
+    approach_height: 0.03
+
+    # Geometry GP: RBF spatial scale [m], height signal standard deviation [m],
+    # and prior height [m] used until contact samples have been received.
     geometry.length_scale: 0.015
     geometry.signal_stddev: 0.002
     geometry.prior: 0.0
+    # Compliance GP: RBF spatial scale [m], unitless signal standard deviation,
+    # and unitless prior compliance. The current observation is clamped to [0, 1].
     material.length_scale: 0.020
     material.signal_stddev: 0.25
     material.prior: 0.5
+    # GP observation-noise standard deviation. Use the same units as geometry
+    # samples (m); it must be positive to keep the covariance matrix stable.
     sensor.measurement_stddev: 0.0005
+    # Ridge regularization for the online h(s, eta, u) surrogate. It falls
+    # back to the analytic contact prior until each regime has enough samples.
+    forward_model.ridge: 0.001
+    # L5325 Omega has 717 distributed bytes = 239 taxels x (Fx, Fy, Fz).
+    forward_model.taxel_count: 239
 
+    # Weights for uncertainty-driven exploration and flat/firm affordance score.
+    # Larger values make the corresponding term influence candidate selection more.
     exploration_weight: 1.0
     affordance_weight: 1.5
+    # Unitless desired normalized flatness and firmness. Values near 1.0 are
+    # stricter; values must be greater than zero.
     affordance.target_flatness: 0.95
     affordance.target_firmness: 0.95
 
+    # Continuous action bounds, not candidate points. The optimizer generates
+    # pose, velocity, force, and duration inside these limits.
+    action.position_bounds: [-0.20, 0.20, -0.20, 0.20]
+    action.roll_bounds: [-0.5, 0.5]
+    action.pitch_bounds: [-0.5, 0.5]
+    action.yaw_bounds: [-3.14159265359, 3.14159265359]
+    action.velocity_bounds: [-0.02, 0.02]
+    action.normal_force_bounds: [0.1, 2.0]
+    action.duration_bounds: [0.1, 2.0]
+
+    # Objective weights from the active-exploration equation:
+    # lambda_information * I + lambda_affordance * a - lambda_cost * C.
+    objective.lambda_information: 1.0
+    objective.lambda_affordance: 1.0
+    objective.lambda_cost: 0.1
+
+    # Contact metric: weight applied to Franka external-force magnitude and the
+    # Omega taxel-force sum. Calibrate the weights because their input units may differ.
     fusion.franka_force_weight: 1.0
     fusion.omega_taxel_weight: 1.0
+    # Minimum fused contact metric required before a sample is added to the GP.
     safety.contact_threshold: 1.0
+    # Franka external-force magnitude threshold. The Python node rejects samples
+    # at or above it; configure the matching controller watchdog for real hardware.
     safety.hard_force_limit: 5.0
+    # Reserved map-frame +Z retract distance [m]; no automatic retract is
+    # currently executed by this node.
     safety.retract_distance: 0.03
+    # Reserved orientation bounds [rad]; not currently checked by the node.
     safety.max_abs_roll: 0.15
     safety.max_abs_pitch: 0.15
 
     # Disabled by default. Executes these world-frame Omega-tip waypoints through
     # MoveIt and the mock Panda trajectory controller when enabled.
     motion_test.enabled: false
+    # MoveIt planning group and constrained tool link for the mock test.
+    motion_test.group_name: panda_arm
+    motion_test.tool_link: omega_contact_tip
+    # Reference frame for all mock test waypoint coordinates.
     motion_test.frame_id: world
+    # Flat [x0, y0, x1, y1, ...] list of at least four world-frame points [m].
     motion_test.square_xy: [0.30, -0.05, 0.40, -0.05, 0.40, 0.05, 0.30, 0.05]
+    # Shared world-frame Z [m] for every mock test waypoint.
     motion_test.z: 0.0
+    # Fixed tool orientation quaternion [x, y, z, w]; it must be normalized.
     motion_test.orientation_xyzw: [0.0, 1.0, 0.0, 0.0]
+    # Allowed position [m] and orientation-axis [rad] constraint tolerances.
     motion_test.position_tolerance: 0.005
     motion_test.orientation_tolerance: 0.05
+    # Delay [s] before the node waits for MoveIt and starts the mock test.
     motion_test.start_delay: 2.0
