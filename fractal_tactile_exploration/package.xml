@@ -10,6 +10,7 @@
   <depend>franka_msgs</depend>
   <exec_depend>fractal_panda_moveit_config</exec_depend>
   <depend>geometry_msgs</depend>
+  <depend>lifecycle_msgs</depend>
   <depend>moveit_msgs</depend>
   <depend>paxini_hardware</depend>
   <depend>rclpy</depend>

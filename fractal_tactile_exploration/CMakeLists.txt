@@ -31,6 +31,10 @@ install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY config launch docs DESTINATION share/${PROJECT_NAME})
 install(PROGRAMS scripts/omega_explorer_node.py DESTINATION lib/${PROJECT_NAME} RENAME omega_explorer_node)
 install(FILES
+  scripts/action_model.py
+  scripts/belief_model.py
+  scripts/exploration_policy.py
+  scripts/gp_models.py
   scripts/mock_square_test.py
   scripts/moveit_executor.py
   scripts/omega_math.py

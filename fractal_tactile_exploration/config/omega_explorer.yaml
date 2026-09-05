@@ -39,10 +39,15 @@ omega_explorer_node:
     affordance.target_firmness: 0.95
 
     # Continuous action bounds, not candidate points. The optimizer generates
-    # pose, velocity, force, and duration inside these limits.
+    # position, probe direction, axial spin, velocity, force, and duration.
+    # Position bounds are x_min, x_max, y_min, y_max in map_frame.
     action.position_bounds: [-0.20, 0.20, -0.20, 0.20]
-    action.roll_bounds: [-0.5, 0.5]
-    action.pitch_bounds: [-0.5, 0.5]
+    # Probe motion direction N is normalized and constrained to this cone
+    # around map-frame -Z. The pad normal (tool +Z) aligns with -N.
+    action.probe_cone_angle_deg: 30.0
+    # Maximum distance traveled along N before a no-contact probe is retracted.
+    action.max_probe_distance: 0.40
+    # Axial spin around N; retained from the former yaw action dimension.
     action.yaw_bounds: [-3.14159265359, 3.14159265359]
     action.velocity_bounds: [-0.02, 0.02]
     action.normal_force_bounds: [0.1, 2.0]
@@ -60,6 +65,8 @@ omega_explorer_node:
     fusion.omega_taxel_weight: 1.0
     # Minimum fused contact metric required before a sample is added to the GP.
     safety.contact_threshold: 1.0
+    # Contact must fall below this value before the next discrete probe event.
+    safety.contact_release_threshold: 0.8
     # Franka external-force magnitude threshold. The Python node rejects samples
     # at or above it; configure the matching controller watchdog for real hardware.
     safety.hard_force_limit: 5.0
@@ -69,6 +76,10 @@ omega_explorer_node:
     # Reserved orientation bounds [rad]; not currently checked by the node.
     safety.max_abs_roll: 0.15
     safety.max_abs_pitch: 0.15
+    # Maximum time spent descending/waiting for one probe contact.
+    exploration.probe_timeout: 5.0
+    # Number of completed probes; zero means continue until deactivated.
+    exploration.max_probes: 0
 
     # Disabled by default. Executes these world-frame Omega-tip waypoints through
     # MoveIt and the mock Panda trajectory controller when enabled.

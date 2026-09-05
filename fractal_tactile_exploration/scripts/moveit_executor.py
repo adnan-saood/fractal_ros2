@@ -14,6 +14,7 @@ class MoveItExecutor:
     def __init__(self, node):
         self.node = node
         self.client = ActionClient(node, MoveGroup, '/move_action')
+        self.active_goal_handle = None
         self.group_name = node.declare_parameter('motion_test.group_name', 'panda_arm').value
         self.tool_link = node.declare_parameter('motion_test.tool_link', 'omega_contact_tip').value
         self.frame_id = node.declare_parameter('motion_test.frame_id', 'world').value
@@ -68,9 +69,27 @@ class MoveItExecutor:
             self.node.get_logger().error('MoveIt rejected the motion goal.')
             on_complete(False)
             return
+        self.active_goal_handle = goal_handle
         goal_handle.get_result_async().add_done_callback(
             lambda result_future: self.on_goal_result(result_future, on_complete))
 
     def on_goal_result(self, future, on_complete):
         result = future.result().result
+        self.active_goal_handle = None
         on_complete(result.error_code.val == MoveItErrorCodes.SUCCESS)
+
+    def cancel_active(self, on_complete):
+        goal_handle = self.active_goal_handle
+        if goal_handle is None:
+            on_complete(True)
+            return
+
+        def on_cancel_response(future):
+            response = future.result()
+            if not response.goals_canceling:
+                on_complete(False)
+                return
+            goal_handle.get_result_async().add_done_callback(
+                lambda _: on_complete(True))
+
+        goal_handle.cancel_goal_async().add_done_callback(on_cancel_response)
