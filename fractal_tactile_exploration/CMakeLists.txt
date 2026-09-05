@@ -16,6 +16,8 @@ find_package(std_msgs REQUIRED)
 find_package(shape_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/FractalMapSample.msg"
@@ -28,8 +30,14 @@ target_include_directories(fractal_gp_map PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 install(DIRECTORY include/ DESTINATION include)
-install(DIRECTORY config launch docs DESTINATION share/${PROJECT_NAME})
-install(PROGRAMS scripts/omega_explorer_node.py DESTINATION lib/${PROJECT_NAME} RENAME omega_explorer_node)
+install(DIRECTORY config launch docs worlds DESTINATION share/${PROJECT_NAME})
+install(PROGRAMS
+  scripts/omega_explorer_node.py
+  DESTINATION lib/${PROJECT_NAME} RENAME omega_explorer_node)
+install(PROGRAMS scripts/sim_sensor_node.py
+  DESTINATION lib/${PROJECT_NAME} RENAME sim_sensor_node)
+install(PROGRAMS scripts/simulation_topic_test.py
+  DESTINATION lib/${PROJECT_NAME} RENAME simulation_topic_test)
 install(FILES
   scripts/action_model.py
   scripts/belief_model.py
@@ -50,6 +58,6 @@ if(BUILD_TESTING)
   target_link_libraries(test_gp_map fractal_gp_map)
 endif()
 
-ament_export_dependencies(geometry_msgs rosidl_default_runtime)
+ament_export_dependencies(geometry_msgs rosidl_default_runtime visualization_msgs)
 ament_export_libraries(fractal_gp_map)
 ament_package()

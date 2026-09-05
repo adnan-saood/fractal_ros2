@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
   <!-- safety_distance: Minimum safety distance in [m] by which the collision volumes are expanded and which is enforced during robot motions -->
   <!-- arm_id: Namespace of the panda arm. Serves to differentiate between arms in case of multiple instances. -->
-  <xacro:macro name="panda_arm" params="arm_id:='panda' description_pkg:='franka_description' connected_to:='' xyz:='0 0 0' rpy:='0 0 0' safety_distance:=0">
+  <xacro:macro name="panda_arm" params="arm_id:='panda' description_pkg:='franka_description' connected_to:='' xyz:='0 0 0' rpy:='0 0 0' safety_distance:=0 sim_gazebo:=false">
     <xacro:unless value="${not connected_to}">
       <joint name="${arm_id}_joint_${connected_to}" type="fixed">
         <parent link="${connected_to}"/>
@@ -11,6 +11,7 @@
       </joint>
     </xacro:unless>
     <link name="${arm_id}_link0">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link0.dae"/>
@@ -36,6 +37,7 @@
       </collision>
     </link>
     <link name="${arm_id}_link1">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link1.dae"/>
@@ -69,6 +71,7 @@
       <limit effort="87" lower="-2.7473" upper="2.7473" velocity="2.1750" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link2">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link2.dae"/>
@@ -102,6 +105,7 @@
       <limit effort="87" lower="-1.6728" upper="1.6728" velocity="2.1750" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link3">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link3.dae"/>
@@ -135,6 +139,7 @@
       <limit effort="87" lower="-2.7473" upper="2.7473" velocity="2.1750" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link4">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link4.dae"/>
@@ -168,6 +173,7 @@
       <limit effort="87" lower="-2.9218" upper="-0.2198" velocity="2.1750" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link5">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link5.dae"/>
@@ -220,6 +226,7 @@
       <limit effort="12" lower="-2.7473" upper="2.7473" velocity="2.6100" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link6">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link6.dae"/>
@@ -253,6 +260,7 @@
       <limit effort="12" lower="-0.0775" upper="3.6025" velocity="2.6100" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link7">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <visual>
         <geometry>
           <mesh filename="package://${description_pkg}/meshes/visual/link7.dae"/>
@@ -286,6 +294,7 @@
       <limit effort="12" lower="-2.7473" upper="2.7473" velocity="2.6100" acceleration="1.0"/>
     </joint>
     <link name="${arm_id}_link8">
+      <xacro:if value="${sim_gazebo}"><xacro:default_inertial/></xacro:if>
       <collision>
         <origin xyz="0.0424 0.0424 -0.0250" rpy="${pi} ${pi/2} ${pi/2}"/>
         <geometry>

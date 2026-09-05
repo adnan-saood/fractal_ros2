@@ -6,7 +6,7 @@
   <xacro:macro name="fractal_pad" params="prefix parent planning_mode:=false *origin">
     <!-- Approximate geometry only; replace with measured CAD when available. -->
     <link name="${prefix}fractal_coupler">
-      <xacro:default_inertial />
+      <xacro:pad_default_inertial />
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_coupler.stl" />
@@ -20,7 +20,7 @@
       </collision>
     </link>
     <link name="${prefix}fractal_L1">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L1.stl" />
@@ -34,7 +34,7 @@
       </collision>
     </link>
     <link name="${prefix}motor_body">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_GM2804.stl" />
@@ -49,7 +49,7 @@
     </link>
 
     <link name="${prefix}fractal_L2">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L2.stl" />
@@ -64,7 +64,7 @@
     </link>
 
     <link name="${prefix}fractal_L4">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L4.stl" />
@@ -79,7 +79,7 @@
     </link>
 
     <link name="${prefix}fractal_L3">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L3.stl" />
@@ -94,7 +94,7 @@
     </link>
 
     <link name="${prefix}fractal_L5325">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_L5325-Omega.stl" />
@@ -109,7 +109,7 @@
     </link>
 
     <link name="${prefix}fractal_fingertip_holder">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_fingertip_holder.stl" />
@@ -124,7 +124,7 @@
     </link>
 
     <link name="${prefix}fractal_S1813">
-      <xacro:default_inertial/>
+      <xacro:pad_default_inertial/>
       <visual>
         <geometry>
           <mesh filename="package://fractal_pad_description/meshes/fractal_pad/visual/fractal_S1813-Elite.stl" />

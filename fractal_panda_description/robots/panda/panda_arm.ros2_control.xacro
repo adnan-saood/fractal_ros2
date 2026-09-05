@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="panda_arm_ros2_control" params="ns robot_ip use_fake_hardware:=^|false fake_sensor_commands:=^|false">
+  <xacro:macro name="panda_arm_ros2_control" params="ns robot_ip use_fake_hardware:=^|false fake_sensor_commands:=^|false sim_gazebo:=^|false simulation_controllers:=^|''">
     <ros2_control name="FrankaHardwareInterface" type="system">
       <hardware>
         <xacro:if value="${use_fake_hardware}">
@@ -9,7 +9,10 @@
           <param name="mock_sensor_commands">${fake_sensor_commands}</param>
           <param name="position_state_following_offset">0.0</param>
         </xacro:if>
-        <xacro:unless value="${use_fake_hardware}">
+        <xacro:if value="${sim_gazebo}">
+          <plugin>franka_ign_ros2_control/IgnitionSystem</plugin>
+        </xacro:if>
+        <xacro:unless value="${use_fake_hardware or sim_gazebo}">
           <plugin>franka_hardware/FrankaHardwareInterface</plugin>
           <param name="robot_ip">${robot_ip}</param>
         </xacro:unless>
@@ -36,5 +39,12 @@
       <xacro:configure_joint joint_name="${ns}_joint7" initial_position="0.7854"/>
 
     </ros2_control>
+    <xacro:if value="${sim_gazebo}">
+      <gazebo>
+        <plugin filename="franka_ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+          <parameters>${simulation_controllers}</parameters>
+        </plugin>
+      </gazebo>
+    </xacro:if>
   </xacro:macro>
 </robot>

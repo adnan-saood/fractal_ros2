@@ -15,7 +15,10 @@
   <xacro:arg name="robot_ip" default=""/> <!-- IP address or hostname of the robot" -->
   <xacro:arg name="use_fake_hardware" default="false"/>
   <xacro:arg name="fake_sensor_commands" default="false"/>
+  <xacro:arg name="sim_gazebo" default="false"/>
+  <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="planning_mode" default="false"/>
+  <xacro:arg name="use_fractal_pad" default="true"/>
 
   <!-- Root frame shared by TF, MoveIt, and RViz. -->
   <link name="world" />
@@ -36,13 +39,20 @@
 
 
   <xacro:include filename="$(find fractal_panda_description)/robots/panda/panda_arm.xacro" />
-  <xacro:panda_arm arm_id="$(arg arm_id)" safety_distance="0.03" />
+  <xacro:include filename="$(find fractal_panda_description)/urdf/common/inertials.xacro" />
+  <xacro:panda_arm arm_id="$(arg arm_id)" safety_distance="0.03" sim_gazebo="$(arg sim_gazebo)" />
 
     <xacro:include filename="$(find fractal_panda_description)/robots/panda/panda_arm.ros2_control.xacro"/>
-  <xacro:panda_arm_ros2_control ns="$(arg arm_id)" robot_ip="$(arg robot_ip)" use_fake_hardware="$(arg use_fake_hardware)" fake_sensor_commands="$(arg fake_sensor_commands)"/>
+  <xacro:panda_arm_ros2_control ns="$(arg arm_id)" robot_ip="$(arg robot_ip)"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    fake_sensor_commands="$(arg fake_sensor_commands)"
+    sim_gazebo="$(arg sim_gazebo)"
+    simulation_controllers="$(arg simulation_controllers)"/>
 
 
-  <link name="ext_force" />
+  <link name="ext_force">
+    <xacro:if value="$(arg sim_gazebo)"><xacro:default_inertial/></xacro:if>
+  </link>
   <joint name="ext_force_joint" type="fixed">
     <parent link="panda_link7" />
     <child link="ext_force" />
@@ -59,16 +69,29 @@
   </gazebo>
 
   <!-- MoveIt sets planning_mode=true to use calibrated, fixed pad geometry. -->
-  <xacro:fractal_pad prefix="" parent="panda_link8" planning_mode="$(arg planning_mode)">
-    <origin xyz="0 0 0" rpy="${-pi} 0 0"/>
-  </xacro:fractal_pad>
+  <xacro:if value="$(arg use_fractal_pad)">
+    <xacro:fractal_pad prefix="" parent="panda_link8" planning_mode="$(arg planning_mode)">
+      <origin xyz="0 0 0" rpy="${-pi} 0 0"/>
+    </xacro:fractal_pad>
+  </xacro:if>
 
-  <link name="omega_contact_tip"/>
+  <link name="omega_contact_tip">
+    <xacro:if value="$(arg sim_gazebo)"><xacro:default_inertial/></xacro:if>
+  </link>
 
-<joint name="omega_contact_tip_joint" type="fixed">
-  <parent link="fractal_L5325"/>
-  <child link="omega_contact_tip"/>
-  <origin xyz="0 0 0" rpy="0 0 0"/>
-</joint>
+<xacro:if value="$(arg use_fractal_pad)">
+  <joint name="omega_contact_tip_joint" type="fixed">
+    <parent link="fractal_L5325"/>
+    <child link="omega_contact_tip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+</xacro:if>
+<xacro:unless value="$(arg use_fractal_pad)">
+  <joint name="omega_contact_tip_joint" type="fixed">
+    <parent link="panda_link8"/>
+    <child link="omega_contact_tip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+</xacro:unless>
 
 </robot>
